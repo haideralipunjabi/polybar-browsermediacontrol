@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 from pydbus import SessionBus
+from gi.repository import GLib
 import sys
 import os
 
@@ -11,10 +12,13 @@ PATH=os.path.realpath(__file__)
 TITLE_LENGTH = 25
 
 bus = SessionBus()
-Player = bus.get(
-    "org.kde.plasma.browser_integration",
-    "/org/mpris/MediaPlayer2"
-)
+try:
+    Player = bus.get(
+        "org.kde.plasma.browser_integration",
+        "/org/mpris/MediaPlayer2"
+    )
+except GLib.Error:
+    exit()
 if Player.PlaybackStatus != "Stopped":
     if len(sys.argv)>1 and sys.argv[1] == "playpause":
         Player.PlayPause()
