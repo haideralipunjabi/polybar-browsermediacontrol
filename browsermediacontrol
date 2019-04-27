@@ -1,0 +1,30 @@
+#!/usr/bin/python3
+from pydbus import SessionBus
+import sys
+import os
+
+
+ICON_PLAY = ""
+ICON_PAUSE = ""
+ICON = ""
+PATH=os.path.realpath(__file__)
+TITLE_LENGTH = 25
+
+bus = SessionBus()
+Player = bus.get(
+    "org.kde.plasma.browser_integration",
+    "/org/mpris/MediaPlayer2"
+)
+if Player.PlaybackStatus != "Stopped":
+    if len(sys.argv)>1 and sys.argv[1] == "playpause":
+        Player.PlayPause()
+        exit()
+    if Player.PlaybackStatus=="Playing":
+        ICON = ICON_PAUSE
+    elif Player.PlaybackStatus=="Paused":
+        ICON = ICON_PLAY
+    title = Player.Metadata["xesam:title"]
+    output="%{A1:" + PATH + " playpause:}"+ ICON + "%{A} " + (title[:TITLE_LENGTH] +"..." if len(title) > TITLE_LENGTH and TITLE_LENGTH>0 else title)
+    print(output)
+else:
+    print("")
