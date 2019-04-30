@@ -1,4 +1,4 @@
-# polybar-kdeconnect
+# polybar-browsermediacontrol
 
 A Browser Media Control module for [Polybar](https://github.com/jaagr/polybar)
 
