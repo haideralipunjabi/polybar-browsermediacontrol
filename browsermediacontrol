@@ -5,8 +5,10 @@ import sys
 import os
 import argparse
 
-ICON_PLAY = ""
-ICON_PAUSE = ""
+ICON_PLAY = "\uf144"
+ICON_PAUSE = "\uf28b"
+ICON_NEXT = "\uf152"
+ICON_PREV = "\uf191"
 ICON = ""
 PATH=os.path.realpath(__file__)
 TITLE_LENGTH = 25
@@ -14,6 +16,8 @@ TITLE_LENGTH = 25
 parser = argparse.ArgumentParser()
 parser.add_argument('--volume', type=int)
 parser.add_argument('--playpause', action="store_true")
+parser.add_argument('--next', action="store_true")
+parser.add_argument('--prev', action="store_true")
 args= parser.parse_args()
 
 bus = SessionBus()
@@ -25,7 +29,11 @@ try:
 except GLib.Error:
     exit()
 
+def action(command, text):
+    return "%{A1:" + PATH + " --" + command + ":}" + text + "%{A}"
 
+def truncate(text, max_len):
+    return text[:max_len] + "..." if len(text) > max_len and max_len > 0 else text
 
 if Player.PlaybackStatus != "Stopped":
     if args.volume != None:
@@ -39,8 +47,12 @@ if Player.PlaybackStatus != "Stopped":
         ICON = ICON_PAUSE
     elif Player.PlaybackStatus=="Paused":
         ICON = ICON_PLAY
+    if args.next:
+        Player.Next()
+    elif args.prev:
+        Player.Previous()
     title = Player.Metadata["xesam:title"]
-    output="%{A1:" + PATH + " --playpause:}"+ ICON + "%{A} " + (title[:TITLE_LENGTH] +"..." if len(title) > TITLE_LENGTH and TITLE_LENGTH>0 else title)
+    output = action("prev", ICON_PREV) + " " + action("playpause", ICON) + " " + action("next", ICON_NEXT) + " " + truncate(title, TITLE_LENGTH)
     print(output)
 else:
     print("")
