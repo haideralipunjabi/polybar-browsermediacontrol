@@ -52,7 +52,6 @@ if Player.PlaybackStatus != "Stopped":
     elif args.prev:
         Player.Previous()
     title = Player.Metadata["xesam:title"]
-    output="%{A1:" + PATH + " --playpause:}"+ ICON + "%{A} " + (title[:TITLE_LENGTH] +"..." if len(title) > TITLE_LENGTH and TITLE_LENGTH>0 else title)
     output = action("prev", ICON_PREV) + " " + action("playpause", ICON) + " " + action("next", ICON_NEXT) + " " + truncate(title, TITLE_LENGTH)
     print(output)
 else:
