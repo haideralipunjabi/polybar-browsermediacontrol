@@ -4,6 +4,7 @@ from gi.repository import GLib
 import sys
 import os
 import argparse
+import re
 
 ICON_PLAY = "\uf144"
 ICON_PAUSE = "\uf28b"
@@ -11,7 +12,14 @@ ICON_NEXT = "\uf152"
 ICON_PREV = "\uf191"
 ICON = ""
 PATH=os.path.realpath(__file__)
-TITLE_LENGTH = 25
+TITLE_LENGTH = 50
+MEDIA_ICONS = {
+    'apple': '\uf302',
+    'spotify': '\uf1bc',
+    'youtube': '\uf16a'
+}
+PATTERN = '(' + '|'.join(MEDIA_ICONS.keys()) + ')'
+MEDIA_ICONS_REGEX = re.compile(PATTERN, re.MULTILINE)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--volume', type=int)
@@ -35,6 +43,13 @@ def action(command, text):
 def truncate(text, max_len):
     return text[:max_len] + "..." if len(text) > max_len and max_len > 0 else text
 
+def get_media_icon(url):
+    match = MEDIA_ICONS_REGEX.findall(url)
+    if match:
+        if len(match) == 1:
+            return MEDIA_ICONS[match[0]]
+    return None
+
 if Player.PlaybackStatus != "Stopped":
     if args.volume != None:
         vol = Player.Volume
@@ -52,7 +67,8 @@ if Player.PlaybackStatus != "Stopped":
     elif args.prev:
         Player.Previous()
     title = Player.Metadata["xesam:title"]
-    output = action("prev", ICON_PREV) + " " + action("playpause", ICON) + " " + action("next", ICON_NEXT) + " " + truncate(title, TITLE_LENGTH)
+    media_icon = get_media_icon(Player.Metadata["xesam:url"].lower())
+    output = action("prev", ICON_PREV) + " " + action("playpause", ICON) + " " + action("next", ICON_NEXT) + " | " + ( f"{media_icon}  " if media_icon else "" ) + truncate(title, TITLE_LENGTH)
     print(output)
 else:
     print("")
