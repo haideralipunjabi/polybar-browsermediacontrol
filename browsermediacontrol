@@ -12,7 +12,7 @@ ICON_NEXT = "\uf152"
 ICON_PREV = "\uf191"
 ICON = ""
 PATH=os.path.realpath(__file__)
-TITLE_LENGTH = 50
+TITLE_LENGTH = 25
 MEDIA_ICONS = {
     'apple': '\uf302',
     'spotify': '\uf1bc',
@@ -22,6 +22,7 @@ PATTERN = '(' + '|'.join(MEDIA_ICONS.keys()) + ')'
 MEDIA_ICONS_REGEX = re.compile(PATTERN, re.MULTILINE)
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--limit', type=int)
 parser.add_argument('--volume', type=int)
 parser.add_argument('--playpause', action="store_true")
 parser.add_argument('--next', action="store_true")
@@ -66,6 +67,10 @@ if Player.PlaybackStatus != "Stopped":
         Player.Next()
     elif args.prev:
         Player.Previous()
+    
+    if args.limit:
+        TITLE_LENGTH = args.limit
+
     title = Player.Metadata["xesam:title"]
     media_icon = get_media_icon(Player.Metadata["xesam:url"].lower())
     output = action("prev", ICON_PREV) + " " + action("playpause", ICON) + " " + action("next", ICON_NEXT) + " | " + ( f"{media_icon}  " if media_icon else "" ) + truncate(title, TITLE_LENGTH)
